@@ -16,7 +16,7 @@ export async function getcustomersById(req, res) {
         SELECT *, to_char(birthday, 'YYYY-MM-DD') AS birthday 
             FROM customers WHERE id = $1;
         `, [id]);
-
+        if(customersId.rows[0] === null || customersId.rows[0] === undefined || customersId.rows[0] === "") return res.sendStatus(404);
         // se precisar que seja apenas 1 registro com algumas infos \/
         // const gameIdAll = {
         //     ...gameId.rows[0],
