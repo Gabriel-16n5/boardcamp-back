@@ -13,9 +13,9 @@ export async function getcustomersById(req, res) {
     const {id} = req.params;
     try{
         const customersId = await db.query(`
-        SELECT *
-	    FROM customers
-              WHERE customers.id=$1;`, [id]);
+        SELECT *, to_char(birthday, 'YYYY-MM-DD') AS birthday 
+            FROM customers WHERE id = $1;
+        `, [id]);
 
         // se precisar que seja apenas 1 registro com algumas infos \/
         // const gameIdAll = {
@@ -26,6 +26,7 @@ export async function getcustomersById(req, res) {
         // res.send(gameIdAll);
         // res.send(gameId);
         // res.send(gameId.rows);
+        console.log(customersId.rows[0])
         return res.send(customersId.rows[0]); // esse [0] é para tirar ele de dentro do array, vir só objeto
     } catch (erro){
        return res.send(erro.message)
