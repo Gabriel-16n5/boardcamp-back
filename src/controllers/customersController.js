@@ -2,7 +2,10 @@ import { db } from "../database/database.connection.js";
 
 export async function getcustomers(req, res) {
     try{
-        const customers = await db.query('SELECT * FROM customers;');
+        const customers = await db.query(`
+        SELECT *, to_char(birthday, 'YYYY-MM-DD') AS birthday 
+            FROM customers;
+        `);
         res.send(customers.rows);
     } catch (erro){
         res.send(erro.message)
