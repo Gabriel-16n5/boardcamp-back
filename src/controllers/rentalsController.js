@@ -2,11 +2,32 @@ import { db } from "../database/database.connection.js";
 
 export async function getrentals(req, res) {
     try{
-        const rentals = await db.query(`
-        SELECT *, to_char(birthday, 'YYYY-MM-DD') AS birthday 
-            FROM rentals;
-        `);
-        res.send(rentals.rows);
+        const holder = await db.query(`
+        SELECT rentals.*, u1.name AS pessoa, u2.name AS jogo
+        FROM rentals
+           JOIN customers u1 ON u1.id = rentals."customerId"
+           JOIN games u2 ON u2.id = rentals."gameId"
+        ;`);
+        const rentals = [{
+            id: holder.rows[0].id,
+            customerId: holder.rows[0].customerId,
+            gameId: holder.rows[0].gameId,
+            rentDate: holder.rows[0].rentDate.toLocaleDateString('en-US'),
+            daysRented: holder.rows[0].daysRented,
+            returnDate: holder.rows[0].returnDate,
+            originalPrice: holder.rows[0].originalPrice,
+            delayFee: holder.rows[0].delayFee,
+            customer: {
+                id: holder.rows[0].customerId,
+                name: holder.rows[0].pessoa
+            },
+            game: {
+                id: holder.rows[0].gameId,
+                name: holder.rows[0].jogo
+            }
+        }
+    ]
+        res.send(rentals);
     } catch (erro){
         res.send(erro.message)
     }
