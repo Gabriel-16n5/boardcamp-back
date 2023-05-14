@@ -130,8 +130,8 @@ export async function editrentalsById(req, res) {
                WHERE rentals.id = $1;
         `, [id])
         const verify = validation.rows[0];
-        // if(!verify) return res.sendStatus(404);
-        // if(verify.returnDate !== null) return res.sendStatus(400);
+        if(!verify) return res.sendStatus(404);
+        if(verify.returnDate !== null) return res.sendStatus(400);
         const rentalsId = await db.query(`
         SELECT *, to_char("rentDate", 'YYYY-MM-DD') AS "rentDate"
             FROM rentals
