@@ -125,21 +125,23 @@ export async function editrentalsById(req, res) {
     const {id} = req.params;
     try{
         const validation = await db.query(`
-        SELECT rentals.id, rentals."returnDate"
+        SELECT rentals.id, rentals."returnDate", to_char("returnDate", 'YYYY-MM-DD') AS "returnDate" 
             FROM rentals
                WHERE rentals.id = $1;
         `, [id])
         const verify = validation.rows[0];
-        console.log(verify)
-        if(!verify) return res.sendStatus(404);
-        if(verify.returnDate !== null) return res.sendStatus(400);
+        // if(!verify) return res.sendStatus(404);
+        // if(verify.returnDate !== null) return res.sendStatus(400);
         const rentalsId = await db.query(`
         SELECT *, to_char("rentDate", 'YYYY-MM-DD') AS "rentDate"
             FROM rentals
                 WHERE rentals.id = $1
         `, [id]);
         const now = dayjs().format('YYYY/MM/DD');
-        const fee = rentalsId.rows[0].originalPrice * ((now.replace(/[/"]/g, '')) - (rentalsId.rows[0].rentDate.replace(/[-"]/g, '')));
+        console.log(now.replace(/[/"]/g, ''))
+        console.log(rentalsId.rows[0].rentDate.replace(/[-"]/g, ''))
+        const fee = rentalsId.rows[0].originalPrice * ((now.replace(/[/"]/g, '')) - (rentalsId.rows[0].rentDate.replace(/[-/"]/g, '')));
+        console.log(fee)
         await db.query(`
         UPDATE rentals
             SET "returnDate" = $1, "delayFee" = $2
