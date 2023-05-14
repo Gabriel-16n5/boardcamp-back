@@ -123,19 +123,28 @@ export async function deleterentals(req, res) {
 
 export async function editrentalsById(req, res) {
     const {id} = req.params;
-    const {name, phone, cpf, birthday} = req.body;
     try{
         const validation = await db.query(`
-        SELECT rentals.cpf, rentals.id
+        SELECT rentals.id, rentals."returnDate"
             FROM rentals
-                WHERE rentals.cpf = $1 AND NOT rentals.id = $2;
-        `, [cpf, id])
+               WHERE rentals.id = $1;
+        `, [id])
         const verify = validation.rows[0];
-        if(verify) return res.sendStatus(409);
+        console.log(verify)
+        if(!verify) return res.sendStatus(404);
+        if(verify.rentDate !== null) return res.sendStatus(400);
         const rentalsId = await db.query(`
+        SELECT *, to_char("rentDate", 'YYYY-MM-DD') AS "rentDate"
+            FROM rentals
+                WHERE rentals.id = $1
+        `, [id]);
+        const now = dayjs().format('YYYY/MM/DD');
+        const fee = rentalsId.rows[0].originalPrice * ((now.replace(/[/"]/g, '')) - (rentalsId.rows[0].rentDate.replace(/[-"]/g, '')));
+        await db.query(`
         UPDATE rentals
-            SET "name" = $1, phone = $2, cpf = $3, birthday = $4
-                WHERE id=$5;`, [name, phone, cpf, birthday ,id]);
+            SET "returnDate" = $1, "delayFee" = $2
+                WHERE id = $3
+        ;`, [now, fee, id])
         // se precisar que seja apenas 1 registro com algumas infos \/
         // const gameIdAll = {
         //     ...gameId.rows[0],
@@ -145,7 +154,7 @@ export async function editrentalsById(req, res) {
         // res.send(gameIdAll);
         // res.send(gameId);
         // res.send(gameId.rows);
-        return res.sendStatus(200); // esse [0] é para tirar ele de dentro do array, vir só objeto
+        return res.sendStatus(200);
     } catch (erro){
        return res.send(erro.message)
     }

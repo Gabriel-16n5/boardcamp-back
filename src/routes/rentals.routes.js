@@ -9,6 +9,6 @@ rentalsRouter.get("/rentals", getrentals)
 rentalsRouter.get("/rentals/:id", getrentalsById)
 rentalsRouter.post("/rentals", createrentals)
 rentalsRouter.delete("/rentals/:id", deleterentals)
-rentalsRouter.put("/rentals/:id", validateSchema(rentalsSchema), editrentalsById)
+rentalsRouter.post("/rentals/:id/return", editrentalsById)
 
 export default rentalsRouter;
