@@ -89,12 +89,12 @@ export async function getrentalsById(req, res) {
 export async function createrentals(req, res) {
     const {customerId, gameId, daysRented} = req.body;
     const validation = await db.query(`
-        SELECT games.id, games."pricePerDay"
-            FROM games
-                WHERE games.id = $1;
-        `, [gameId])
+        SELECT games.id, games."pricePerDay", customers.id
+            FROM games, customers
+                WHERE games.id = $1 AND customers.id = $2;
+        `, [gameId, customerId])
         const verify = validation.rows[0];
-    // if(verify) return res.sendStatus(409);
+    if(!verify) return res.sendStatus(400);
     const rentPrice = verify.pricePerDay * daysRented;
     console.log(verify)
     try{
