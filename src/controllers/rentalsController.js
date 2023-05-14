@@ -122,6 +122,7 @@ export async function deleterentals(req, res) {
 }
 
 export async function editrentalsById(req, res) {
+    let fee = 0;
     const {id} = req.params;
     try{
         const validation = await db.query(`
@@ -138,10 +139,14 @@ export async function editrentalsById(req, res) {
                 WHERE rentals.id = $1
         `, [id]);
         const now = dayjs().format('YYYY/MM/DD');
-        console.log(now.replace(/[/"]/g, ''))
-        console.log(rentalsId.rows[0].rentDate.replace(/[-"]/g, ''))
-        const fee = rentalsId.rows[0].originalPrice * ((now.replace(/[/"]/g, '')) - (rentalsId.rows[0].rentDate.replace(/[-/"]/g, '')));
-        console.log(fee)
+        const holder = (rentalsId.rows[0].rentDate.replace(/[-/"]/g, '')) - (now.replace(/[/"]/g, '')) + rentalsId.rows[0].daysRented;
+        if(holder >= 0){
+            fee = 0;
+            fee = fee * rentalsId.rows[0].originalPrice;
+        }else{
+            fee = holder * -1;
+            fee = fee * rentalsId.rows[0].originalPrice;
+        }
         await db.query(`
         UPDATE rentals
             SET "returnDate" = $1, "delayFee" = $2
