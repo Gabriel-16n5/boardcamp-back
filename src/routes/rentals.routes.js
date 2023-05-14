@@ -7,7 +7,7 @@ const rentalsRouter = Router()
 
 rentalsRouter.get("/rentals", getrentals)
 rentalsRouter.get("/rentals/:id", getrentalsById)
-rentalsRouter.post("/rentals", validateSchema(rentalsSchema), createrentals)
+rentalsRouter.post("/rentals", createrentals)
 rentalsRouter.delete("/rentals/:id", deleterentals)
 rentalsRouter.put("/rentals/:id", validateSchema(rentalsSchema), editrentalsById)
 
