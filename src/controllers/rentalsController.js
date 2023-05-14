@@ -94,12 +94,10 @@ export async function createrentals(req, res) {
                 WHERE games.id = $1 AND customers.id = $2;
         `, [gameId, customerId])
     const verify = validation.rows[0];
-    const updateStock = verify.stockTotal - 1;
-    console.log(verify)
     if(!verify) return res.sendStatus(400);
     if(daysRented <= 0) return res.sendStatus(400);
     if(verify.stockTotal <= 0) return res.sendStatus(400);
-
+    const updateStock = verify.stockTotal - 1;
     const rentPrice = verify.pricePerDay * daysRented;
     try{
         const now = dayjs().format('YYYY/MM/DD');
