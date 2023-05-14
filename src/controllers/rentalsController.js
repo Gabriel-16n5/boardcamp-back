@@ -89,21 +89,29 @@ export async function getrentalsById(req, res) {
 export async function createrentals(req, res) {
     const {customerId, gameId, daysRented} = req.body;
     const validation = await db.query(`
-        SELECT games.id, games."pricePerDay", customers.id
+        SELECT games.id, games."pricePerDay", customers.id, games."stockTotal"
             FROM games, customers
                 WHERE games.id = $1 AND customers.id = $2;
         `, [gameId, customerId])
-        const verify = validation.rows[0];
+    const verify = validation.rows[0];
+    const updateStock = verify.stockTotal - 1;
+    console.log(verify)
     if(!verify) return res.sendStatus(400);
     if(daysRented <= 0) return res.sendStatus(400);
+    if(verify.stockTotal <= 0) return res.sendStatus(400);
+
     const rentPrice = verify.pricePerDay * daysRented;
-    console.log(verify)
     try{
         const now = dayjs().format('YYYY/MM/DD');
         const rentalsid = await db.query(`
             INSERT INTO rentals ("customerId", "gameId", "daysRented", "rentDate", "originalPrice", "returnDate", "delayFee")
                 VALUES ($1, $2, $3, $4, $5, $6, $7);
         `, [customerId, gameId, daysRented, now, rentPrice, null, null])
+        await db.query(`
+        UPDATE games
+            SET "stockTotal" = $1
+                WHERE id = $2
+        ;`, [updateStock, gameId])
         return res.sendStatus(201);
     }catch(erro) {
         return res.send(erro.message)
