@@ -95,6 +95,7 @@ export async function createrentals(req, res) {
         `, [gameId, customerId])
         const verify = validation.rows[0];
     if(!verify) return res.sendStatus(400);
+    if(daysRented <= 0) return res.sendStatus(400);
     const rentPrice = verify.pricePerDay * daysRented;
     console.log(verify)
     try{
@@ -103,7 +104,6 @@ export async function createrentals(req, res) {
             INSERT INTO rentals ("customerId", "gameId", "daysRented", "rentDate", "originalPrice", "returnDate", "delayFee")
                 VALUES ($1, $2, $3, $4, $5, $6, $7);
         `, [customerId, gameId, daysRented, now, rentPrice, null, null])
-        console.log(rentalsid.rows)
         return res.sendStatus(201);
     }catch(erro) {
         return res.send(erro.message)
