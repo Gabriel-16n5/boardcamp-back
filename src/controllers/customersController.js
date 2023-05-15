@@ -20,46 +20,11 @@ export async function getcustomersById(req, res) {
             FROM customers WHERE id = $1;
         `, [id]);
         if(customersId.rows[0] === null || customersId.rows[0] === undefined || customersId.rows[0] === "") return res.sendStatus(404);
-        // se precisar que seja apenas 1 registro com algumas infos \/
-        // const gameIdAll = {
-        //     ...gameId.rows[0],
-        //     categorias: gameId.rows.map(gm => gm.categoria)
-        // }
-        // delete gameIdAll.categoria;
-        // res.send(gameIdAll);
-        // res.send(gameId);
-        // res.send(gameId.rows);
-        console.log(customersId.rows[0])
-        return res.send(customersId.rows[0]); // esse [0] é para tirar ele de dentro do array, vir só objeto
+        return res.send(customersId.rows[0]);
     } catch (erro){
        return res.send(erro.message)
     }
 }
-
-// export async function getgameById(req, res) {
-//     const {id} = req.params;
-//     try{
-//         const gameId = await db.query(`
-//         SELECT games.*, categorias.nome AS categoria
-// 	    FROM games JOIN "games_Categorias"
-// 		    ON games.id = "games_Categorias".id_game
-// 	    JOIN categorias
-// 		    ON categorias.id = "games_Categorias".id_categoria
-//               WHERE games.id=$1;`, [id]);
-
-//         // se precisar que seja apenas 1 registro com algumas infos \/
-//         const gameIdAll = {
-//             ...gameId.rows[0],
-//             categorias: gameId.rows.map(rec => rec.categoria)
-//         }
-//         delete gameIdAll.categoria;
-//         res.send(gameIdAll);
-//         // res.send(gameId.rows);
-//         // res.send(gameId.rows[0]); // esse [0] é para tirar ele de dentro do array, vir só objeto
-//     } catch (erro){
-//         res.send(erro.message)
-//     }
-// }
 
 export async function createcustomers(req, res) {
     const {name, phone, cpf, birthday} = req.body;
@@ -71,21 +36,16 @@ export async function createcustomers(req, res) {
         const verify = validation.rows[0];
     if(verify) return res.sendStatus(409);
     try{
-        const customersid = await db.query(`
+        await db.query(`
             INSERT INTO customers (name, phone, "cpf", "birthday")
                 VALUES ($1, $2, $3, $4);
         `, [name, phone, cpf, birthday])
-        console.log(customersid.rows[0])
         return res.sendStatus(201);
     }catch(erro) {
         return res.send(erro.message)
     }
     
 }
-
-// export async function deletegame(req, res) {
-//     res.send("deletegame")
-// }
 
 export async function editcustomersById(req, res) {
     const {id} = req.params;
@@ -98,20 +58,11 @@ export async function editcustomersById(req, res) {
         `, [cpf, id])
         const verify = validation.rows[0];
         if(verify) return res.sendStatus(409);
-        const customersId = await db.query(`
+        await db.query(`
         UPDATE customers
             SET "name" = $1, phone = $2, cpf = $3, birthday = $4
                 WHERE id=$5;`, [name, phone, cpf, birthday ,id]);
-        // se precisar que seja apenas 1 registro com algumas infos \/
-        // const gameIdAll = {
-        //     ...gameId.rows[0],
-        //     categorias: gameId.rows.map(gm => gm.categoria)
-        // }
-        // delete gameIdAll.categoria;
-        // res.send(gameIdAll);
-        // res.send(gameId);
-        // res.send(gameId.rows);
-        return res.sendStatus(200); // esse [0] é para tirar ele de dentro do array, vir só objeto
+        return res.sendStatus(200);
     } catch (erro){
        return res.send(erro.message)
     }

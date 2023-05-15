@@ -37,55 +37,6 @@ export async function getrentals(req, res) {
     }
 }
 
-export async function getrentalsById(req, res) {
-    const {id} = req.params;
-    try{
-        const rentalsId = await db.query(`
-        SELECT *, to_char(birthday, 'YYYY-MM-DD') AS birthday 
-            FROM rentals WHERE id = $1;
-        `, [id]);
-        if(rentalsId.rows[0] === null || rentalsId.rows[0] === undefined || rentalsId.rows[0] === "") return res.sendStatus(404);
-        // se precisar que seja apenas 1 registro com algumas infos \/
-        // const gameIdAll = {
-        //     ...gameId.rows[0],
-        //     categorias: gameId.rows.map(gm => gm.categoria)
-        // }
-        // delete gameIdAll.categoria;
-        // res.send(gameIdAll);
-        // res.send(gameId);
-        // res.send(gameId.rows);
-        console.log(rentalsId.rows[0])
-        return res.send(rentalsId.rows[0]); // esse [0] é para tirar ele de dentro do array, vir só objeto
-    } catch (erro){
-       return res.send(erro.message)
-    }
-}
-
-// export async function getgameById(req, res) {
-//     const {id} = req.params;
-//     try{
-//         const gameId = await db.query(`
-//         SELECT games.*, categorias.nome AS categoria
-// 	    FROM games JOIN "games_Categorias"
-// 		    ON games.id = "games_Categorias".id_game
-// 	    JOIN categorias
-// 		    ON categorias.id = "games_Categorias".id_categoria
-//               WHERE games.id=$1;`, [id]);
-
-//         // se precisar que seja apenas 1 registro com algumas infos \/
-//         const gameIdAll = {
-//             ...gameId.rows[0],
-//             categorias: gameId.rows.map(rec => rec.categoria)
-//         }
-//         delete gameIdAll.categoria;
-//         res.send(gameIdAll);
-//         // res.send(gameId.rows);
-//         // res.send(gameId.rows[0]); // esse [0] é para tirar ele de dentro do array, vir só objeto
-//     } catch (erro){
-//         res.send(erro.message)
-//     }
-// }
-
 export async function createrentals(req, res) {
     const {customerId, gameId, daysRented} = req.body;
     const validation = await db.query(`
@@ -133,15 +84,10 @@ export async function deleterentals(req, res) {
             FROM rentals
                 WHERE rentals.id = $1;
         `, [id]);
-    return res.sendStatus(200)
+    return res.sendStatus(200);
     }catch(erro) {
         return res.send(erro.message)
     }
-
-
-
-
-    res.sendStatus(200);
 }
 
 export async function editrentalsById(req, res) {
@@ -175,15 +121,6 @@ export async function editrentalsById(req, res) {
             SET "returnDate" = $1, "delayFee" = $2
                 WHERE id = $3
         ;`, [now, fee, id])
-        // se precisar que seja apenas 1 registro com algumas infos \/
-        // const gameIdAll = {
-        //     ...gameId.rows[0],
-        //     categorias: gameId.rows.map(gm => gm.categoria)
-        // }
-        // delete gameIdAll.categoria;
-        // res.send(gameIdAll);
-        // res.send(gameId);
-        // res.send(gameId.rows);
         return res.sendStatus(200);
     } catch (erro){
        return res.send(erro.message)
