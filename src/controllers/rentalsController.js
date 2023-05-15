@@ -118,7 +118,30 @@ export async function createrentals(req, res) {
 }
 
 export async function deleterentals(req, res) {
-    res.send("deleterentals")
+    const {id} = req.params;
+    const validation = await db.query(`
+        SELECT rentals.id, rentals."returnDate"
+            FROM rentals
+                WHERE rentals.id = $1
+        `, [id])
+    const verify = validation.rows[0];
+    if(!verify) return res.sendStatus(404);
+    if(verify.returnDate === null) return res.sendStatus(400);
+    try{
+        const del = await db.query(`
+        DELETE 
+            FROM rentals
+                WHERE rentals.id = $1;
+        `, [id]);
+    return res.sendStatus(200)
+    }catch(erro) {
+        return res.send(erro.message)
+    }
+
+
+
+
+    res.sendStatus(200);
 }
 
 export async function editrentalsById(req, res) {
